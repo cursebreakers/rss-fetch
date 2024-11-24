@@ -12,8 +12,8 @@ A simple CLI tool for fetching and displaying rss feeds
 
 Setup:
 
-1. Add your desired rss feeds to the "rss_feeds" struct
-2. Install required c dependencies
+1. Install required c dependencies
+2. Add your desired rss feeds to the "rss_feeds" struct
 3. Compile the binary with "gcc fetch.c -o fetch -lcurl"
 4. Use "chmod +x" on the binary to make it executable
 
