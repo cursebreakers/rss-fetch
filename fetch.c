@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+#include <json-c/json.h> // Include JSON-C library
 
 // Data structure to hold fetched RSS feed
 struct MemoryStruct {
@@ -23,7 +24,7 @@ size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     mem->memory = ptr;
     memcpy(&(mem->memory[mem->size]), contents, total_size);
     mem->size += total_size;
-    mem->memory[mem->size] = '\0';  // Use null-termination explicitly
+    mem->memory[mem->size] = '\0';
 
     return total_size;
 }
@@ -98,23 +99,54 @@ void fetch_rss_feed(const char *url) {
     }
 }
 
-int main() {
-const char *rss_feeds[] = {
-    "https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen",
-    "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-    "https://www.theguardian.com/world/rss",
-    "https://www.aljazeera.com/xml/rss/all.xml",
-    "https://www.rt.com/rss/news/",
-};
+// Read feeds from feeds.json
+void read_feeds_from_json(const char *file_path, char ***feeds, size_t *num_feeds) {
+    FILE *file = fopen(file_path, "r");
+    if (!file) {
+        perror("Unable to open feeds.json");
+        exit(EXIT_FAILURE);
+    }
 
-    size_t num_feeds = sizeof(rss_feeds) / sizeof(rss_feeds[0]);
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    rewind(file);
+
+    char *json_data = malloc(file_size + 1);
+    fread(json_data, 1, file_size, file);
+    json_data[file_size] = '\0';
+    fclose(file);
+
+    struct json_object *parsed_json = json_tokener_parse(json_data);
+    struct json_object *rss_feeds_array;
+
+    if (json_object_object_get_ex(parsed_json, "rss_feeds", &rss_feeds_array)) {
+        *num_feeds = json_object_array_length(rss_feeds_array);
+        *feeds = malloc(*num_feeds * sizeof(char *));
+
+        for (size_t i = 0; i < *num_feeds; i++) {
+            (*feeds)[i] = strdup(json_object_get_string(json_object_array_get_idx(rss_feeds_array, i)));
+        }
+    }
+
+    free(json_data);
+    json_object_put(parsed_json);
+}
+
+int main() {
+    char **rss_feeds;
+    size_t num_feeds;
+
+    read_feeds_from_json("feeds.json", &rss_feeds, &num_feeds);
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
     for (size_t i = 0; i < num_feeds; i++) {
         fetch_rss_feed(rss_feeds[i]);
+        free(rss_feeds[i]);
     }
 
+    free(rss_feeds);
     curl_global_cleanup();
+
     return 0;
 }

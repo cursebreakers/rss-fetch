@@ -1,0 +1,10 @@
+{
+    "rss_feeds": [
+      "https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen",
+      "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+      "https://www.theguardian.com/world/rss",
+      "https://www.aljazeera.com/xml/rss/all.xml",
+      "https://www.rt.com/rss/news/"
+    ]
+  }
+  
