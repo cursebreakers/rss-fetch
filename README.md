@@ -2,28 +2,25 @@
 
 v0.0.1
 
+*A simple CLI tool for fetching and displaying rss feeds*
+
 ---
-
-# Overview:
-
-A simple CLI tool for fetching and displaying rss feeds
 
 ## How to use:
 
 Setup:
 
 1. Install required c dependencies
+
+3. Compile the binary with `gcc -o fetch fetch.c -lcurl -ljson-c`
+
 2. Add your desired rss feeds to feeds.json file
-3. Compile the binary with "gcc -o fetch fetch.c -lcurl -ljson-c"
 
-4. Use "chmod +x" on the binary to make it executable
+4. You may need to `chmod +x` the binary to make it executable
 
-Run the binary:
-- use "./fetch"
+5. Use `./fetch` to run the binary
 
-Filter results by date:
-
-- Use "./fetch | grep -A 3 'Sun, 24' | grep -E 'Headline:|URL:|Publication Date:'" to search for headlines by date
+To filter results by date: `./fetch | grep -A 3 'Mon, 24' | grep -E 'Headline:|URL:|Publication Date:'`
 
 ---
 

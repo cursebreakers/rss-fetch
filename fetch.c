@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
-#include <json-c/json.h> // Include JSON-C library
+#include <json-c/json.h>
 
 // Data structure to hold fetched RSS feed
 struct MemoryStruct {
@@ -16,12 +16,12 @@ size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
     char *ptr = realloc(mem->memory, mem->size + total_size + 1);
-    if (ptr == NULL) {
-        fprintf(stderr, "Not enough memory!\n");
-        return 0;
-    }
-
-    mem->memory = ptr;
+	if (ptr == NULL) {
+    	fprintf(stderr, "Not enough memory!\n");
+    	free(mem->memory);
+    	return 0;
+	}
+	mem->memory = ptr;
     memcpy(&(mem->memory[mem->size]), contents, total_size);
     mem->size += total_size;
     mem->memory[mem->size] = '\0';
@@ -91,7 +91,11 @@ void fetch_rss_feed(const char *url) {
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         } else {
-            parse_rss_feed(chunk.memory);
+            if (chunk.memory != NULL) {
+			    parse_rss_feed(chunk.memory);
+			} else {
+				fprintf(stderr, "Error: No content fetched.\n");
+			}
         }
 
         free(chunk.memory);
